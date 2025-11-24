@@ -1,0 +1,35 @@
+Передо мной стоит следующая задача:
+Конвертировать документы в чистый текст
+Описание: Извлечь текст из PDF/HTML без артефактов (колонтитулы, номера страниц, скан-мусор).
+Инструменты:
+PDF: pdfplumber.
+Критерий завершения: текст читаем, нет повторяющихся заголовков/номеров страниц, сохранена нумерация разделов.
+Я прикрепил во вложении файл для экспорта в txt. Адаптируй мой скрипт pdfplumber таким образом, что бы итоговый экспорт максимально соответствовал критериям выполнения задачи.
+
+Мой скрипт:
+import pdfplumber
+import re
+import os
+
+input_path = "/home/nik/raw/GOST26633-2015.pdf"
+output_path = "/home/nik/text/GOST26633-2015.txt"
+
+with pdfplumber.open(input_path) as pdf:
+    text = ""
+    for page in pdf.pages:
+        # Удаление колонтитулов: строки с "Страница", "ИС «Кодекс»", "Внимание!"
+        raw_text = page.extract_text(x_tolerance=1, y_tolerance=1) or ""
+        cleaned_lines = []
+        for line in raw_text.split("\n"):
+            if re.search(r"(Страница\s*\d+|ИС\s*«Кодекс|Внимание!|Примечание изготовителя)", line, re.IGNORECASE):
+                continue
+            cleaned_lines.append(line)
+        text += "\n".join(cleaned_lines) + "\n\n"
+
+# Удаление лишних пустых строк и артефактов
+text = re.sub(r"\n{3,}", "\n\n", text)
+text = re.sub(r"[^\S\n]+\n", "\n", text)  # убрать пробелы в конце строк
+
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write(text.strip())
