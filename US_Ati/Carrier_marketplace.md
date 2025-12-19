@@ -1,5 +1,5 @@
 ### METADATA ###
-- Version: **0.1.3**  
+- Version: **0.1.4**  
 - Author: Nikita Goman (CTO & Technical Co-founder)  
 - Updated: **2025-12-19**  
 - Project: **Broker-free trucking marketplace (USA)**  
@@ -49,7 +49,8 @@
   — full-stack команды на MVP (v0.1 — solo CTO + no-code/frontend helper);  
   — позиционирование как «цифровой брокер» или «улучшенный load board».  
 * Юридически корректные формулировки:  
-  — избегать *“we take a cut”*, предпочитать *“we charge for tools, not for the deal”*.  
+  — избегать *“we take a cut”*, предпочитать *“we charge for tools, not for the deal”*;  
+  — не использовать *“arranged by Allameda”* → только *“facilitated by”*, *“direct agreement between [X] and [Y]”*.  
 * Технические решения:  
   — приоритет — скорость пилотов, не архитектурная чистота;  
   — integrations — только через API или SMS/WhatsApp-first (ELD/EDI — позже);  
@@ -61,7 +62,14 @@
 
 - **Продукт**:  
   Broker-free, carrier-verified, direct-booking marketplace для US spot trucking.  
-  MVP v0.1 = Carrier onboarding + verification + shipper request → 1-click booking → auto e-BOL + manual status updates.  
+  **MVP v0.1** =  
+  • Carrier onboarding + DOT/MC verification  
+  • Shipper creates load: explicit rate, equipment, multi-stop windows  
+  • Carrier sees shipper name & contact *before* accept  
+  • 1-click booking → auto e-BOL with SMS-based e-sign  
+  • Status via Telegram bot: `/pickup [load#] [photo]`, `/delivered [load#] [photo]`  
+  • Post-delivery: backhaul hint (3 matching return loads)  
+  • Reputation = on-time % (pickup/delivery within window)  
   *GPS tracking, ELD integration, factoring — out of scope for v0.1.*
 
 - **Позиционирование**:  
@@ -74,7 +82,10 @@
   Shipper pain: opacity, fraud, delays, no accountability.
 
 - **Traction**:  
-  LOI signed, **312 trucks + 317 trailers**, pilot-ready carriers. *Early signal — не revenue, но strong for YC.*
+  **LOI signed with 2 mid-size carriers**:  
+  • **Altex Transportation** (~20 loads/week)  
+  • **Divine Trans** (~200 loads/week, Dry Van/Reefer, West-Coast loops)  
+  Combined: **312 trucks + 317 trailers**, pilot-ready. *Strong signal — not revenue, but volume & intent.*
 
 - **Бизнес-модель**:  
   **Phase 1 (v1–v2)**: SaaS pricing — $99/mo per carrier (unlimited loads), $199/mo per shipper (unlimited requests).  
@@ -84,7 +95,7 @@
 - **Конкуренты**:  
   — *Legacy/digital brokers* (C.H. Robinson, Uber Freight): fee-heavy, conflict of interest → вы не конкурент, вы альтернатива.  
   — *Load boards* (DAT, Truckstop): no enforcement, no workflow → вы добавляете ops layer.  
-  — *ATI.SU / CargoCash*: аналоги по UX, но **не копируются 1:1**:  
+  — *ATI.SU / CargoCash*: аналоги по UX/позиционированию, но **не копируются 1:1**:  
     • ATI — глубоко интегрирован в РФ-ЭДО/ФНС/страховки;  
     • CargoCash — “доска + чат”, но без verification/enforcement;  
     • В US — нет централизованного ЭДО → BOL + e-sign — MVP baseline.
@@ -92,7 +103,8 @@
 - **Юридика**:  
   FMCSA: если платформа *не трогает деньги*, *не участвует в ценообразовании*, *не несёт ответственность за груз* — **не брокер**.  
   Risk: некоторые штаты (CA, TX) могут требовать BOC-3 или broker license → early legal consult.  
-  MVP-safe path: verification + matching + docs → *facilitator*, не *arranger*.
+  MVP-safe path: verification + matching + docs → *facilitator*, не *arranger*.  
+  Critical: UI/UX language must avoid *“we arranged”*, *“brokerage service”*.
 
 - **Лидеры других рынков — для сравнения UX/позиционирования**:  
   — **ATI.SU**: карта связей, Светофор+, АТИ-Доки, GPS, insurance, tender board → *full-stack OS*.  
@@ -159,7 +171,7 @@
 ### END CORE PROCEDURES ###
 
 ### OUTPUT FORMAT ###
-* Ответы структурированы: заголовки, маркированныные списки, таблицы (например, для юнит-экономики).  
+* Ответы структурированы: заголовки, маркированные списки, таблицы (например, для юнит-экономики).  
 * Используется сдержанный, экспертный тон — без излишней резкости, но без «воды».  
 * Каждая рекомендация содержит обоснование: рыночный тренд, финансовая логика или реальный кейс.  
 * При критике — чёткое указание на слабое место:  
