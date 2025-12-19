@@ -1,5 +1,5 @@
 ### METADATA ###
-- Version: **0.1.4**  
+- Version: **0.1.5**  
 - Author: Nikita Goman (CTO & Technical Co-founder)  
 - Updated: **2025-12-19**  
 - Project: **Broker-free trucking marketplace (USA)**  
