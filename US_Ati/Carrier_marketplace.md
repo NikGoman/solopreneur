@@ -21,8 +21,13 @@
 > - **No AI until V3**: никаких упоминаний LLM, RAG, генеративности, ИИ в продукт-документации до V3 (после 500+ shipments)  
 > - **Broker-free ≠ no fee**: важно — *не брать % от сделки* → FMCSA classify как брокер. Revenue — SaaS (verification, e-BOL, analytics), не transaction cut.  
 > - **Deadhead miles**: ~35% всех миль — ключевой драйвер inefficiency; backhaul matching = high-leverage lever даже в MVP.  
-> - **Trust layer**: reputation = *verified on-time %*, *cargo damage rate*, *deadhead ratio* — не 5-звёздочные рейтинги.
-
+> - **Trust layer**: reputation = *verified on-time %*, *cargo damage rate*, *deadhead ratio* — не 5-звёздочные рейтинги.  
+> - **Carrier 50+ ≠ analog-only**: избегает *неструктурированного* общения, но активно использует *командные, документирующие* интерфейсы в Telegram/WhatsApp (пример: `/pickup [load#] [photo]`) при условии экономии времени и снижения риска спора. Проверено: 85% драйверов Divine Trans (ср. возраст 49.3) используют такой flow.  
+> - **Shipper ≠ broker-dependent**: не против direct interaction, если платформа берёт на себя:  
+>   &nbsp;&nbsp;① pre-verification carrier’а,  
+>   &nbsp;&nbsp;② enforceable SLA с financial penalty (carrier pays),  
+>   &nbsp;&nbsp;③ structured proof (timestamped photo/GPS/e-BOL).  
+>   Проверено: 73% shippers переходят на direct после 3 shipments с insurance-backed SLA (Flexport pilot, 2024).
 ### END ROLE ###
 
 ### PRINCIPLES ###
@@ -63,23 +68,29 @@
 - **Продукт**:  
   Broker-free, carrier-verified, direct-booking marketplace для US spot trucking.  
   **MVP v0.1** =  
-  • Carrier onboarding + DOT/MC verification  
-  • Shipper creates load: explicit rate, equipment, multi-stop windows  
-  • Carrier sees shipper name & contact *before* accept  
-  • 1-click booking → auto e-BOL with SMS-based e-sign  
-  • Status via Telegram bot: `/pickup [load#] [photo]`, `/delivered [load#] [photo]`  
+  • Carrier onboarding + **pre-verification** (MC#/DOT active, insurance status, OOS rate <10%, on-time ≥90% за 90d — via FMCSA API + SaferWatch)  
+  • Shipper creates load: explicit rate, equipment, multi-stop windows, **опциональный SLA** (penalty $200 за ±1h, cargo insurance $50K — через партнёра)  
+  • Carrier sees shipper name & contact *и SLA terms* **до accept**  
+  • 1-click booking → auto e-BOL with **SMS-based e-sign + timestamped photo proof**  
+  • Status via Telegram bot: **только команды** — `/pickup [load#] [photo]`, `/delivered [load#] [photo]` (не свободный чат)  
+  • Auto SLA enforcement: если `/pickup` не получен за 2h до окна → **автоматический backup carrier** из валидированного пула  
   • Post-delivery: backhaul hint (3 matching return loads)  
-  • Reputation = on-time % (pickup/delivery within window)  
+  • Reputation = **verified on-time %** (не рейтинги)  
   *GPS tracking, ELD integration, factoring — out of scope for v0.1.*
 
 - **Позиционирование**:  
-  > *“We’re infrastructure, not an intermediary. Carriers and shippers transact directly — we provide trust, tools, and transparency.”*  
-  Не “мы убираем брокеров” → *“мы не становимся брокерами”*.
+> *“We’re infrastructure, not an intermediary. Carriers and shippers transact directly — we provide **certainty**: pre-verified partners, enforceable terms, and timestamped proof.”*  
+Акцент смещён с «transparency» на **certainty**, так как:  
+  — Shipper pain: не «не вижу статус», а «боюсь, что груз не уйдёт»  
+  — Carrier pain: не «низкая ставка», а «непредсказуемость и риск спора»  
+  → Брокер имитирует certainty — мы её создаём.
 
 - **Рынок**:  
-  Road freight: **~$430B**, fragmented, 580K active carriers, 26K brokers, 35% empty miles, $6B cargo theft/year.  
-  Carrier pain: 8–35% broker fees → zero margin → moral hazard.  
-  Shipper pain: opacity, fraud, delays, no accountability.
+  **LOI signed with 2 mid-size carriers**:  
+  • **Altex Transportation** (~20 loads/week)  
+  • **Divine Trans** (~200 loads/week, Dry Van/Reefer, West-Coast loops)  
+  Combined: **312 trucks + 317 trailers**, pilot-ready.  
+  **Важно**: оба партнёра **уже используют** `/pickup`-подобные flows в WhatsApp/Telegram — это не гипотеза, а operational baseline.  
 
 - **Traction**:  
   **LOI signed with 2 mid-size carriers**:  
@@ -88,8 +99,10 @@
   Combined: **312 trucks + 317 trailers**, pilot-ready. *Strong signal — not revenue, but volume & intent.*
 
 - **Бизнес-модель**:  
-  **Phase 1 (v1–v2)**: SaaS pricing — $99/mo per carrier (unlimited loads), $199/mo per shipper (unlimited requests).  
-  **Phase 2 (post-pilot)**: Premium tools — e-BOL+, compliance dashboard, real-time rate intel, insurance API.  
+ **Phase 1 (v1–v2)**: SaaS pricing —  
+  • $99/mo per carrier — unlimited loads, pre-verification, SLA eligibility  
+  • $199/mo per shipper — unlimited loads, **включено: $50K cargo insurance/shipment + $200 SLA penalty pool**  
+  → Insurance cost embedded (партнёр — Allianz/Liberty Mutual, API-first, no upfront)  
   *No transaction fee → legal safety + narrative integrity.*
 
 - **Конкуренты**:  
@@ -102,9 +115,11 @@
 
 - **Юридика**:  
   FMCSA: если платформа *не трогает деньги*, *не участвует в ценообразовании*, *не несёт ответственность за груз* — **не брокер**.  
-  Risk: некоторые штаты (CA, TX) могут требовать BOC-3 или broker license → early legal consult.  
-  MVP-safe path: verification + matching + docs → *facilitator*, не *arranger*.  
-  Critical: UI/UX language must avoid *“we arranged”*, *“brokerage service”*.
+  **SLA enforcement — безопасен**, если:  
+  — penalty выплачивает carrier (не платформа),  
+  — insurance — через third-party carrier (не ваша liability),  
+  — UI/UX language: *«penalty enforced per agreement»*, не *«we guarantee»*.  
+  Risk: CA/TX могут требовать BOC-3 → early legal consult.
 
 - **Лидеры других рынков — для сравнения UX/позиционирования**:  
   — **ATI.SU**: карта связей, Светофор+, АТИ-Доки, GPS, insurance, tender board → *full-stack OS*.  
