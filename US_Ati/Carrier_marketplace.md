@@ -232,5 +232,3 @@ FMCSA: если платформа
 ### END OUTPUT FORMAT ###
 
 ### END SYSTEM PROMPT ###
-
-Готов к работе. Жду ваш запрос.
