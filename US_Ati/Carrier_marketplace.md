@@ -1,7 +1,7 @@
 ### METADATA ###
-- Version: **0.1.6**  
+- Version: **0.1.7**  
 - Author: Nikita Goman (CTO & Technical Co-founder)  
-- Updated: **2025-12-22**  
+- Updated: **2025-12-23**  
 - Project: **Broker-free trucking marketplace (USA)**  
 ### END METADATA ###
 
@@ -78,6 +78,10 @@ Broker-free, carrier-verified, direct-booking marketplace для spot-перев
 • Автоматическое SLA-принуждение: если `/pickup` не получен за 2 часа до окна → **автоматический резервный carrier** из верифицированного пула  
 • После доставки: подсказка по возвратным рейсам (3 варианта)  
 • Репутация = **подтверждённый % вовремя** (не рейтинги)  
+• ✅ **Highway Risk Shield** (v0.1, optional):  
+  &nbsp;&nbsp;— carrier указывает статус в Highway («Verified», «Probation», «Blocked»);  
+  &nbsp;&nbsp;— при «Probation/Blocked» — ручной ops-review + предложение Reputation Bond ($99/мес);  
+  &nbsp;&nbsp;— включение в «Highway-Independent Pool» для шиперов, готовых к direct вне cartel-слоя.  
 
 *GPS, ELD, учёт топлива, factoring — вне scope v0.1.*
 
@@ -89,7 +93,8 @@ Broker-free, carrier-verified, direct-booking marketplace для spot-перев
 Акцент смещён с «прозрачности» на **certainty**, потому что:  
 — Боль shipper’а: не «не вижу статус», а «боюсь, что груз не уедет»  
 — Боль carrier’а: не «низкая ставка», а «непредсказуемость и риск спора»  
-→ Брокер *имитирует* certainty — мы её *создаём*.
+→ Брокер *имитирует* certainty — мы её *создаём*.  
+→ Highway *забирает* certainty — мы её *восстанавливаем*.
 
 ---
 
@@ -103,11 +108,29 @@ Broker-free, carrier-verified, direct-booking marketplace для spot-перев
 | **AiTracking** | агрегирует мелких carrier’ов | Потенциальный партнёр | через диспетчеров (уже связались) | Даёт скидки на топливо за счёт объёма; может быть каналом роста + retention-layer |
 
 ##### **[Highway.com](https://highway.com/) — системная угроза**  
-— Не государственная структура, а частная платформа (создана брокерами, в т.ч. через лоббирование Samasara/Motive).  
-— Позволяет брокерам публиковать «клеймы» и блокировать carrier’ов → фактическое банкротство без юридических оснований.  
+— Не государственная структура, а **частная enforcement-платформа**, созданная брокерами.  
+— Функции:  
+  &nbsp;&nbsp;• *Rightful owner validation* (MC# ↔ EIN),  
+  &nbsp;&nbsp;• *Dispatch service detection* (снижает доверие к carrier’ам с dispatch-посредниками),  
+  &nbsp;&nbsp;• *Custom business rules* (no-show >1 → block),  
+  &nbsp;&nbsp;• *Shared blacklist* (блокировка в сети брокеров).  
+— **Badges**: Verified / Preferred / Probation → влияют на load offer rate (до 2.3×).  
 — **Sunrise Logistics** сейчас на грани банкротства из-за этого.  
 → Можно использовать как *маркетинговый триггер*:  
 > *«Что будет, если вас забанят в Highway завтра — а водители не получат зарплату?»*
+
+##### **Samsara.com**  
+— B2B SaaS для fleet ops (GPS, ELD, maintenance).  
+— Не участвует в сделках, но через **Samsara Connect** начинает предлагать backhaul-рекомендации на основе HOS + deadhead.  
+→ Риск: carrier получает возвратные рейсы *вне вашей платформы* → утечка retention.  
+→ Тактика: ручной `/suggest-backhaul` → DAT API ($0.01/запрос) после 50 shipments.
+
+##### **Flexport.com**  
+— End-to-end digital forwarder (ocean/air + customs + FTL как вспомогательный).  
+— Не конкурент на dry van spot, но:  
+  &nbsp;&nbsp;• их pilot с DOTLUX доказал спрос на *direct + insurance + enforcement*,  
+  &nbsp;&nbsp;• могут масштабировать это отдельно («Flexport Direct») при $2M+ ARR.  
+→ Дифференциация: *anti-orchestration*, *no fee per shipment*, *human-first ops*.
 
 ---
 
@@ -124,7 +147,7 @@ Broker-free, carrier-verified, direct-booking marketplace для spot-перев
 ---
 
 #### **Бизнес-модель (Phase 1, v1–v2)**  
-- **$99/мес** за carrier: безлимит грузов, верификация, доступ к SLA  
+- **$99/мес** за carrier: безлимит грузов, верификация, доступ к SLA + Highway Risk Shield  
 - **$199/мес** за shipper: безлимит грузов, включено:  
   &nbsp;&nbsp;• insurance $50K/груз,  
   &nbsp;&nbsp;• пул штрафов $200/SLA (покрывается через партнёра: Allianz/Liberty Mutual)  
@@ -132,13 +155,16 @@ Broker-free, carrier-verified, direct-booking marketplace для spot-перев
 
 ---
 
-#### **Конкуренты**  
+#### **Конкуренты (обновлено)**  
 — *Legacy/digital brokers* (C.H. Robinson, Uber Freight): конфликт интересов → мы — альтернатива.  
 — *Доски грузов* (DAT, Truckstop): нет enforcement, нет workflow → мы добавляем ops-слой.  
 — *ATI.SU / CargoCash*: похожи по философии, но:  
   • ATI — full-stack (ЭДО, Светофор+, страхование), РФ-специфика;  
   • CargoCash — free доска + verified executors + direct contact, но без enforcement;  
-  • В США нет централизованного ЭДО → e-BOL + e-sign — MVP-база.
+  • В США нет централизованного ЭДО → e-BOL + e-sign — MVP-база.  
+— **Highway.com**: не конкурент, но gatekeeper — наша первая линия защиты = *Highway Risk Shield*.  
+— **Samsara**: data-layer, не marketplace — но backhaul-рекомендации = будущая угроза retention.  
+— **Flexport**: orchestrator, не facilitator — их сила (end-to-end) = наша слабость при scale.
 
 ---
 
@@ -161,7 +187,7 @@ FMCSA: если платформа
 #### **Лидеры других рынков — для сравнения UX/позиционирования**  
 — **ATI.SU**: карта связей, Светофор+, АТИ-Доки, GPS, insurance → *full-stack OS*.  
 — **CargoCash**: free доска + верифицированные исполнители + прямые контакты + CRM/API для шиперов → *лёгкий, без комиссий*.  
-— Наш MVP ближе к CargoCash по философии, но с *enforcement layer* (репутация + concierge ops) как у ATI.
+— Наш MVP ближе к CargoCash по философии, но с *enforcement layer* (репутация + concierge ops) как у ATI + *Highway Risk Shield* как дифференциатор.
 
 ### END CORE CONTEXT ###
 
@@ -201,7 +227,7 @@ FMCSA: если платформа
 - «Как организовать escrow без MC#?»  
 - «Подготовь 5 вопросов для интервью диспетчеров Lemberg по SLA»  
 - «Сравни WhatsApp Business (app) vs Telegram Bot для пилота»  
-- «сохрани контекст»  
+- `сохрани контекст`  
 - «Перепиши pitch slide #7 под concierge narrative»  
 - «Дай техспек верификации carrier через FMCSA API»  
 - «Как сделать e-BOL без юр. рисков?»  
@@ -211,7 +237,7 @@ FMCSA: если платформа
 
 ### INPUT CHECK ###  
 **State: READY**  
-* **Condition:** CORE CONTEXT fully updated with CEO feedback (4 carrier meetings, Highway threat, contacts, ops gaps).  
+* **Condition:** CORE CONTEXT fully updated with competitor analysis (Highway, Samsara, Flexport), Highway Risk Shield added, ops-strategy refined.  
 * **Action:** Await USER INPUT.
 
 ### END INPUT_CHECK ###
